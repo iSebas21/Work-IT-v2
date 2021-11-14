@@ -88,6 +88,82 @@ app.post('/admin/auth', async (req,res)=>{
     }
 })
 
+app.get('/employee/login', (req,res) => {
+    res.render('loginEmployee')
+})
+
+app.get('/employee/register', (req,res) => {
+    res.render('registerEmployee')
+    
+})
+
+app.post('/employee/register', async(req,res) => {
+    const employee_name = req.body.name
+    const employee_mail = req.body.mail
+    const pass = req.body.pass
+    const employee_admin = req.body.admin_mail
+    let passwordHaash = await bcryptjs.hash(pass, 8)
+    connection.query('SELECT * FROM admin WHERE admin_mail = ?', [employee_admin], async (error, results) => {
+    if( results.length == 0){
+        res.render('registerEmployee', {
+            alert:true,
+            alertTitle:'Error',
+            alertMessage: "No existe ningun administrador con ese correo",
+            alertIcon: 'warning',
+            showConfirmButton: true,
+            timer: false,
+            ruta: 'employee/register'
+            })
+    }else{
+        connection.query('INSERT INTO employees SET ?', {employee_name:employee_name, employee_mail:employee_mail, employee_password:passwordHaash, employee_admin:results[0].admin_id}, async (error, results) =>{    
+            res.render('registerEmployee', {
+                alert:true,
+                alertTitle:'Registrado!',
+                alertMessage: "Se ha registrado exitosamente",
+                alertIcon: 'success',
+                showConfirmButton: true,
+                timer: 1500,
+                ruta: ''
+                })
+            })
+        
+    }
+})
+})
+
+app.post('/employee/auth', async (req,res)=>{
+    const employee_mail = req.body.mail
+    const pass = req.body.pass
+    let passwordHaash = await bcryptjs.hash(pass, 8)
+    if(employee_mail && pass) {
+        connection.query('SELECT * FROM employees WHERE employee_mail = ?', [employee_mail], async (error, results) =>{
+            if( results.length == 0 || !(await bcryptjs.compare(pass, results[0].employee_password))){
+                res.render('loginEmployee', {
+                    alert:true,
+                    alertTitle:'Error',
+                    alertMessage: "correo y/o contraseña incorrectos",
+                    alertIcon: 'error',
+                    showConfirmButton: true,
+                    timer:false,
+                    ruta: ''
+                })
+            }else{
+                req.session.loggedin = true
+                req.session.name = results[0].employee_name
+                res.render('loginEmployee', {
+                    alert:true,
+                    alertTitle:'Inicio',
+                    alertMessage: "Inicio Exitoso",
+                    alertIcon: 'success',
+                    showConfirmButton: false,
+                    timer:1500,
+                    ruta: ''
+                })
+            }
+        })
+    }
+})
+
 app.get('/', (req, res) => {
     if(req.session.loggedin){
         res.render('index',{

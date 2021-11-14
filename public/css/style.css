@@ -77,7 +77,7 @@ body{
 
 
 /* Estilos de link para ir a LOGIN*/
-.a-login:link, .a-login:visited {
+.a-login-admin:link, .a-login-admin:visited {
   background-color: white;
   color: black;
   border: 2px solid #10B981;
@@ -87,8 +87,23 @@ body{
   display: inline-block;
 }
 
-.a-login:hover, .a-login:active {
+.a-login-admin:hover, .a-login-admin:active {
   background-color: #10B981;
+  color: white;
+}
+
+.a-login-employee:link, .a-login-employee:visited {
+  background-color: white;
+  color: black;
+  border: 2px solid #b400d4;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.a-login-employee:hover, .a-login-employee:active {
+  background-color: #b400d4;
   color: white;
 }
 
