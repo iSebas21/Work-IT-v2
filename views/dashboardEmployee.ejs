@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="/resources/css/style.css">
+</head>
+<body>
+    <h1>Work-IT</h1>
+    <% if (login) { %>
+        <h1>El empleado conectado es: <strong><%= name %></strong></h1>
+        <a href="logout" class='a-logout'>Cerrar Sesion</a>
+    <%} else { %>
+        <h1><strong><%= name %></strong></h1>
+        <a href="/" class='a-login-admin'>Salir</a>
+    <% } %>
+</body>
+</html>

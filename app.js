@@ -69,11 +69,13 @@ app.post('/admin/auth', async (req,res)=>{
                     alertIcon: 'error',
                     showConfirmButton: true,
                     timer:false,
-                    ruta: ''
+                    ruta: 'admin/login'
                 })
             }else{
                 req.session.loggedin = true
                 req.session.name = results[0].admin_name
+                req.session.role = 'admin'
+                req.session.admin_id = results[0].admin_id
                 res.render('loginAdmin', {
                     alert:true,
                     alertTitle:'Inicio',
@@ -81,10 +83,79 @@ app.post('/admin/auth', async (req,res)=>{
                     alertIcon: 'success',
                     showConfirmButton: false,
                     timer:1500,
-                    ruta: ''
+                    ruta: 'admin/dashboard/employee'
                 })
             }
         })
+    }
+})
+
+app.get('/admin/dashboard/employee', async(req, res) => {
+    if(req.session.loggedin){
+        connection.query('SELECT * FROM employees WHERE employee_admin = ?', [req.session.admin_id], async (error, results) => {
+            if(error){
+                throw error
+            } else { 
+                res.render('dashboardAdmin',{
+                    results: results,
+                    login: true,
+                    name: req.session.name
+                })
+            }
+        })
+        
+    }else{
+        res.render('dashboardAdmin', {
+            login:false,
+            name:''
+        })
+        
+    }
+})
+
+app.get('/admin/dashboard/tasks', async(req, res) => {
+    if(req.session.loggedin){
+        connection.query('SELECT * FROM projects WHERE pro_admin = ?', [req.session.admin_id], async (error, results) => {
+            if(error){
+                throw error
+            } else { 
+                res.render('dashboardAdminTasks',{
+                    results: results,
+                    login: true,
+                    name: req.session.name
+                })
+            }
+        })
+        
+    }else{
+        res.render('dashboardAdmin', {
+            login:false,
+            name:''
+        })
+        
+    }
+})
+
+app.get('/newTask', async (req,res) => {
+    if(req.session.loggedin){
+        connection.query('SELECT * FROM employees WHERE employee_admin = ?', [req.session.admin_id], async (error, results) => {
+            if(error){
+                throw error
+            } else { 
+                res.render('newTask',{
+                    results: results,
+                    login: true,
+                    name: req.session.name
+                })
+            }
+        })
+        
+    }else{
+        res.render('dashboardAdmin', {
+            login:false,
+            name:''
+        })
+        
     }
 })
 
@@ -145,11 +216,12 @@ app.post('/employee/auth', async (req,res)=>{
                     alertIcon: 'error',
                     showConfirmButton: true,
                     timer:false,
-                    ruta: ''
+                    ruta: 'employee/login'
                 })
             }else{
                 req.session.loggedin = true
                 req.session.name = results[0].employee_name
+                req.session.role = 'employee'
                 res.render('loginEmployee', {
                     alert:true,
                     alertTitle:'Inicio',
@@ -157,29 +229,53 @@ app.post('/employee/auth', async (req,res)=>{
                     alertIcon: 'success',
                     showConfirmButton: false,
                     timer:1500,
-                    ruta: ''
+                    ruta: 'employee/dashboard'
                 })
             }
         })
     }
 })
 
-app.get('/', (req, res) => {
+app.get('/employee/dashboard', async(req, res) => {
     if(req.session.loggedin){
-        res.render('index',{
+        res.render('dashboardEmployee',{
             login: true,
             name: req.session.name
         })
     }else{
-        res.render('index', {
+        res.render('dashboardEmployee', {
             login:false,
-            name:'Debe iniciar sesion'
+            name:'Acceso restringido: debe iniciar sesion'
         })
         
     }
 })
 
-app.get('/logout', (req,res) =>{
+app.get('/', (req, res) => {
+    if(req.session.loggedin){
+        if (req.session.role == 'employee'){
+            res.redirect('/employee/dashboard')
+        }
+        if (req.session.role == 'admin'){
+            res.redirect('/admin/dashboard')
+        }
+
+    }else{
+        res.render('index', {
+            login:false,
+            name:'Iniciar Sesion'
+        })
+        
+    }
+})
+
+app.get('/admin/logout', (req,res) =>{
+    req.session.destroy(() =>{
+        res.redirect('/')
+    })
+})
+
+app.get('/employee/logout', (req,res) =>{
     req.session.destroy(() =>{
         res.redirect('/')
     })
