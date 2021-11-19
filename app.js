@@ -13,49 +13,17 @@ app.use('/resources', express.static(__dirname + '/public'))
 app.set('view engine', 'ejs')
 
 const bcryptjs = require('bcryptjs')
-
 const session = require('express-session')
 
-app.use(session({
-    secret:'secret',
-    resave: true,
-    saveUninitialized: true
-}))
-
+//Configuracion para Express Session
+app.use(session({secret:'secret', resave: true, saveUninitialized: true}))
+//Conexion a la base de datos
 const connection = require('./database/db')
-
-
+//Login para administradores
 app.get('/admin/login', (req,res) => {
     res.render('loginAdmin')
 })
-
-app.get('/admin/register', (req,res) => {
-    res.render('registerAdmin')
-    
-})
-
-app.post('/admin/register', async(req,res) => {
-    const admin_name = req.body.name
-    const admin_mail = req.body.mail
-    const pass = req.body.pass
-    let passwordHaash = await bcryptjs.hash(pass, 8)
-    connection.query('INSERT INTO admin SET ?', {admin_name:admin_name, admin_mail:admin_mail, admin_password:passwordHaash}, async(error, results) => {
-        if(error){
-            console.log(error)
-        }else{
-            res.render('registerAdmin', {
-                alert:true,
-                alertTitle:'Registro',
-                alertMessage: "Registro Exitoso",
-                alertIcon: 'success',
-                showConfirmButton: false,
-                timer:1500,
-                ruta: ' '
-            })
-        }
-    })
-})
-
+//Validacion del formulario de inicio de sesion de administradores
 app.post('/admin/auth', async (req,res)=>{
     const admin_mail = req.body.mail
     const pass = req.body.pass
@@ -90,7 +58,34 @@ app.post('/admin/auth', async (req,res)=>{
         })
     }
 })
-
+//Registro para administradores
+app.get('/admin/register', (req,res) => {
+    res.render('registerAdmin')
+    
+})
+//Envio del formulario para registrar administradores
+app.post('/admin/register', async(req,res) => {
+    const admin_name = req.body.name
+    const admin_mail = req.body.mail
+    const pass = req.body.pass
+    let passwordHaash = await bcryptjs.hash(pass, 8)
+    connection.query('INSERT INTO admin SET ?', {admin_name:admin_name, admin_mail:admin_mail, admin_password:passwordHaash}, async(error, results) => {
+        if(error){
+            console.log(error)
+        }else{
+            res.render('registerAdmin', {
+                alert:true,
+                alertTitle:'Registro',
+                alertMessage: "Registro Exitoso",
+                alertIcon: 'success',
+                showConfirmButton: false,
+                timer:1500,
+                ruta: ' '
+            })
+        }
+    })
+})
+//Inicio para administradores donde se ve la lista de empleados
 app.get('/admin/dashboard/employee', async(req, res) => {
     if(req.session.loggedin){
         connection.query('SELECT * FROM employees WHERE employee_admin = ?', [req.session.admin_id], async (error, results) => {
@@ -113,7 +108,7 @@ app.get('/admin/dashboard/employee', async(req, res) => {
         
     }
 })
-
+//Apartado para visualziar las tareas asignadas
 app.get('/admin/dashboard/tasks', async(req, res) => {
     if(req.session.loggedin){
         connection.query('SELECT * FROM projects WHERE pro_admin = ?', [req.session.admin_id], async (error, results) => {
@@ -136,7 +131,7 @@ app.get('/admin/dashboard/tasks', async(req, res) => {
         
     }
 })
-
+//Crear tarea
 app.get('/newTask', async (req,res) => {
     if(req.session.loggedin){
         connection.query('SELECT * FROM employees WHERE employee_admin = ?', [req.session.admin_id], async (error, results) => {
@@ -158,7 +153,7 @@ app.get('/newTask', async (req,res) => {
         
     }
 })
-
+//Formulario para asignar tarea
 app.post('/newTask', async (req, res) => {
     if(req.session.loggedin){
         const pro_title = req.body.pro_title
@@ -190,7 +185,7 @@ app.post('/newTask', async (req, res) => {
     }
     
 })
-
+//Editar tarea
 app.get('/editTask/:id', async (req, res) => {
     const id = req.params.id
     connection.query('SELECT * FROM projects WHERE pro_id = ?', [id], (error, results1) => {
@@ -212,7 +207,7 @@ app.get('/editTask/:id', async (req, res) => {
         }
     })
 })
-
+//Formulario para editar tarea
 app.post('/editTask', async (req, res) => {
     if(req.session.loggedin){
         const pro_id = req.body.pro_id
@@ -239,20 +234,26 @@ app.post('/editTask', async (req, res) => {
         }) 
     }
 })
-
-app.get('/deleteTask', async (req, res) => {
-    
+//Eliminar tarea
+app.get('/deleteTask/:id', async (req, res) => {
+    const pro_id = req.params.id
+    connection.query('DELETE FROM projects WHERE pro_id = ?', [pro_id], async (error, results) => {
+        if(error){
+            throw error
+        }else{        
+            res.redirect('/admin/dashboard/tasks')
+        }})
 })
-
+//Inicio de sesion empleado
 app.get('/employee/login', (req,res) => {
     res.render('loginEmployee')
 })
-
+//Registro para nuevo empleado (Comprobacion de administrador)
 app.get('/employee/register', (req,res) => {
     res.render('registerEmployee')
     
 })
-
+//Formulario para registro de empleado
 app.post('/employee/register', async(req,res) => {
     const employee_name = req.body.name
     const employee_mail = req.body.mail
@@ -286,7 +287,7 @@ app.post('/employee/register', async(req,res) => {
     }
 })
 })
-
+//Validacion de los datos del usuario
 app.post('/employee/auth', async (req,res)=>{
     const employee_mail = req.body.mail
     const pass = req.body.pass
@@ -335,7 +336,7 @@ app.get('/employee/dashboard', async(req, res) => {
         
     }
 })
-
+//Redireccionamiento en caso de tener o no sesion iniciada
 app.get('/', (req, res) => {
     if(req.session.loggedin){
         if (req.session.role == 'employee'){
@@ -353,13 +354,13 @@ app.get('/', (req, res) => {
         
     }
 })
-
+//Cierre de sesion de administrador
 app.get('/admin/logout', (req,res) =>{
     req.session.destroy(() =>{
         res.redirect('/')
     })
 })
-
+//Cierre de sesion de empleado
 app.get('/employee/logout', (req,res) =>{
     req.session.destroy(() =>{
         res.redirect('/')
