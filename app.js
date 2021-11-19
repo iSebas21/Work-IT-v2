@@ -15,6 +15,7 @@ app.set('view engine', 'ejs')
 const bcryptjs = require('bcryptjs')
 
 const session = require('express-session')
+
 app.use(session({
     secret:'secret',
     resave: true,
@@ -148,6 +149,36 @@ app.get('/newTask', async (req,res) => {
                     name: req.session.name
                 })
             }
+        })   
+    }else{
+        res.render('dashboardAdmin', {
+            login:false,
+            name:''
+        })
+        
+    }
+})
+
+app.post('/newTask', async (req, res) => {
+    if(req.session.loggedin){
+        const pro_title = req.body.pro_title
+        const pro_description = req.body.pro_description
+        const pro_file = req.body.pro_file
+        const pro_limit = req.body.pro_limit
+        const pro_employee = req.body.pro_employee
+        const pro_admin = req.session.admin_id
+        connection.query('SELECT * FROM employees WHERE employee_name = ?', [pro_employee], async (error, results1) =>{
+            if(error){
+                throw error
+            } else { 
+                connection.query('INSERT INTO projects SET ?', {pro_title:pro_title, pro_description:pro_description, pro_file:pro_file, pro_limit:pro_limit, pro_employee_id:results1[0].employee_id, pro_admin:pro_admin}, async(error, results2) => {
+                    if(error){
+                        throw error
+                    } else { 
+                        res.redirect('/admin/dashboard/tasks')
+                }
+            })
+            }
         })
         
     }else{
@@ -157,6 +188,60 @@ app.get('/newTask', async (req,res) => {
         })
         
     }
+    
+})
+
+app.get('/editTask/:id', async (req, res) => {
+    const id = req.params.id
+    connection.query('SELECT * FROM projects WHERE pro_id = ?', [id], (error, results1) => {
+        if(error){
+            throw error
+        }else{
+            connection.query('SELECT * FROM employees WHERE employee_admin = ?', [req.session.admin_id], async (error, results2) => {
+                if(error){
+                    throw error
+                } else {                   
+                    res.render('editTask', {
+                        task:results1[0],
+                        user:results2,
+                        login: true,
+                    
+                    })
+                }
+            })   
+        }
+    })
+})
+
+app.post('/editTask', async (req, res) => {
+    if(req.session.loggedin){
+        const pro_id = req.body.pro_id
+        const pro_title = req.body.pro_title
+        const pro_description = req.body.pro_description
+        const pro_file = req.body.pro_file
+        const pro_limit = req.body.pro_limit
+        const pro_employee = req.body.pro_employee
+        const pro_admin = req.session.admin_id
+        connection.query('UPDATE projects SET ? WHERE pro_id = ?', [{pro_title:pro_title, pro_description:pro_description, pro_file:pro_file, pro_limit:pro_limit, pro_employee_id:pro_employee, pro_admin:pro_admin}, pro_id], async(error, results2) => {
+            if(error){
+                throw error
+            } else { 
+                res.redirect('/admin/dashboard/tasks')
+         }
+    })
+        
+        
+        
+    }else{
+        res.render('dashboardAdmin', {
+            login:false,
+            name:''
+        }) 
+    }
+})
+
+app.get('/deleteTask', async (req, res) => {
+    
 })
 
 app.get('/employee/login', (req,res) => {

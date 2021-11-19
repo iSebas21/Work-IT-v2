@@ -27,25 +27,31 @@
                 <form class="d-flex">
                   <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
                   <button class="btn btn-outline-success" type="submit"><i class='bx bx-search'></i></button>
-                  <a class="btn btn-outline-danger" href="logout"><i class='bx bx-door-open' ></i></a>
+                  <a class="btn btn-outline-danger" href="/admin/logout"><i class='bx bx-door-open' ></i></a>
                 </form>
               </div>
             </div>
           </nav>
 
+          
           <div class="container">
+            
+            <a href="/newTask" class="btn btn-outline-primary"><i class='bx bx-plus'></i></a>
                 <table class="table table-bordered table-striped text-center mt-4">
                   <thead>
                     <tr class= "bg-primary text-white">
+                        <th>ID</th>
                         <th>Titulo</th>
                         <th>Empleado</th>
                         <th>Completado</th>
+                        <th>Fecha de Entrega</th>
                         <th>Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
                     <% results.forEach((task) => { %>
                     <tr>
+                        <td><%= task.pro_id%></td>
                         <td><%= task.pro_title %></td>
                         <td><%= task.pro_employee_id %></td>
                     <% if (task.pro_state == 0) { %>
@@ -53,9 +59,10 @@
                     <%} else {%>
                         <td>Entregado</td>
                     <% } %>
+                        <td><%= task.pro_limit %></td>
                         <td>
-                            <a href="/newTask" class="btn btn-outline-primary"><i class='bx bx-plus'></i></a>
-                            <a href="" class="btn btn-outline-danger"><i class='bx bx-trash' ></i></a>
+                            <a href="/editTask/<%= task.pro_id%>" class="btn btn-outline-primary"><i class='bx bx-pencil'></i></a>
+                            <a href="/deleteTask" class="btn btn-outline-danger"><i class='bx bx-trash' ></i></a>
                         </td>
                     </tr>
                     <% }) %>
