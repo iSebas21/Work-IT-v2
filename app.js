@@ -43,7 +43,7 @@ app.post('/admin/auth', async (req,res)=>{
             }else{
                 req.session.loggedin = true
                 req.session.name = results[0].admin_name
-                req.session.role = 'admin'
+                req.session.role = 1
                 req.session.admin_id = results[0].admin_id
                 res.render('loginAdmin', {
                     alert:true,
@@ -309,7 +309,7 @@ app.post('/employee/auth', async (req,res)=>{
             }else{
                 req.session.loggedin = true
                 req.session.name = results[0].employee_name
-                req.session.role = 'employee'
+                req.session.role = 0
                 req.session.employee_id = results[0].employee_id
                 res.render('loginEmployee', {
                     alert:true,
@@ -324,7 +324,7 @@ app.post('/employee/auth', async (req,res)=>{
         })
     }
 })
-
+//Le permite al empleado visualizar las tareas pendientes
 app.get('/employee/dashboard/tasks', async(req, res) => {
     if(req.session.loggedin){
         connection.query('SELECT * FROM projects WHERE pro_employee_id = ?', [req.session.employee_id], async (error, results) => {
@@ -349,7 +349,7 @@ app.get('/employee/dashboard/tasks', async(req, res) => {
         
     }
 })
-
+//Le permite al empleado marcar como completada la tarea, ademas de subir un archivo y un mensaje para el admin
 app.get('/completeTask/:id', async(req, res) => {
     if(req.session.loggedin){
         const id = req.params.id
@@ -373,7 +373,7 @@ app.get('/completeTask/:id', async(req, res) => {
         
     }
 })
-
+//Le permite al empleado marcar como completada la tarea, ademas de subir un archivo y un mensaje para el admin
 app.post('/completeTask', async(req, res) => {
     if(req.session.loggedin){
         const pro_id = req.body.pro_id
@@ -393,6 +393,70 @@ app.post('/completeTask', async(req, res) => {
             name:''
         }) 
     }
+})
+
+app.get('/admin/msg', async (req, res) => {
+    const id = req.session.admin_id
+    connection.query('SELECT * FROM admin WHERE admin_id = ?', [id], async (error, results) => {
+        console.log(results)
+        if(error) {
+            throw error
+        } else {
+            const mail = results[0].admin_mail
+            connection.query('SELECT * FROM msg WHERE msg_origin = ?', [mail], async (error, sent) => {
+                console.log(sent)
+                if (error) {
+                    throw error
+                }else{
+                    connection.query('SELECT * FROM msg WHERE msg_destination = ?', [mail], async (error, received) => {
+                        console.log(received)
+                        if(error) {
+                            throw error
+                        }else{
+                            res.render('adminMSG', {
+                                sent: sent,
+                                received: received,
+                                login: true
+                            })
+                        }
+                    })
+                }
+            })
+        }
+    })
+
+})
+
+app.get('/employee/msg', async (req, res) => {
+    const id = req.session.employee_id
+    connection.query('SELECT * FROM employees WHERE employee_id = ?', [id], async (error, results) => {
+        console.log(results)
+        if(error) {
+            throw error
+        } else {
+            const mail = results[0].employee_mail
+            connection.query('SELECT * FROM msg WHERE msg_origin = ?', [mail], async (error, sent) => {
+                console.log(sent)
+                if (error) {
+                    throw error
+                }else{
+                    connection.query('SELECT * FROM msg WHERE msg_destination = ?', [mail], async (error, received) => {
+                        console.log(received)
+                        if(error) {
+                            throw error
+                        }else{
+                            res.render('employeeMSG', {
+                                sent: sent,
+                                received: received,
+                                login: true
+                            })
+                        }
+                    })
+                }
+            })
+        }
+    })
+
 })
 //Redireccionamiento en caso de tener o no sesion iniciada
 app.get('/', (req, res) => {

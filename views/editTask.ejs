@@ -41,11 +41,11 @@
                         <input id="id" name="pro_id" value="<%= task.pro_id %>" hidden>
                         <div class="mb-3">
                             <label for="user" class="form-label">Titulo</label>
-                            <input type="text" class="form-control" id="title" name="pro_title" value="<%= task.pro_title %>"tabindex="1">
+                            <input type="text" class="form-control" id="title" name="pro_title" value="<%= task.pro_title %>"tabindex="1" required>
                         </div>  
                         <div class="mb-3">
                             <label for="user" class="form-label">Descripcion</label>
-                            <input type="text" class="form-control" id="description" name="pro_description" value="<%= task.pro_description %>" tabindex="1">
+                            <input type="text" class="form-control" id="description" name="pro_description" value="<%= task.pro_description %>" tabindex="1" required>
                         </div> 
                         <div class="mb-3">
                             <label for="user" class="form-label">Archivo (Opcional)</label>
@@ -53,11 +53,11 @@
                         </div> 
                         <div class="mb-3">
                             <label for="user" class="form-label">Fecha de entrega</label>
-                            <input type="date" class="form-control" id="limit_time" name="pro_limit" value="<%= task.pro_limit %>" tabindex="1">
+                            <input type="date" class="form-control" id="limit_time" name="pro_limit" value="<%= task.pro_limit %>" tabindex="1" required>
                         </div>   
                         <div class="mb-3">
                             <label for="user" class="form-label">Encargado</label>
-                            <select id="pro_employee" name="pro_employee" class="form-select" aria-label="Default select example" tabindex="2">
+                            <select id="pro_employee" name="pro_employee" class="form-select" aria-label="Default select example" tabindex="2" required>
                                 <% user.forEach((user) => { %>
                                 <option value="<%= user.employee_id %>" <%= user.employee_id == task.pro_employee_id ? "selected" : "" %> ><%= user.employee_name %></option>
                                 <% }) %>               
