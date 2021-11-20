@@ -115,7 +115,9 @@ app.get('/admin/dashboard/tasks', async(req, res) => {
             if(error){
                 throw error
             } else { 
+                const now = Date.now()
                 res.render('dashboardAdminTasks',{
+                    now: now,
                     results: results,
                     login: true,
                     name: req.session.name
@@ -308,6 +310,7 @@ app.post('/employee/auth', async (req,res)=>{
                 req.session.loggedin = true
                 req.session.name = results[0].employee_name
                 req.session.role = 'employee'
+                req.session.employee_id = results[0].employee_id
                 res.render('loginEmployee', {
                     alert:true,
                     alertTitle:'Inicio',
@@ -315,25 +318,80 @@ app.post('/employee/auth', async (req,res)=>{
                     alertIcon: 'success',
                     showConfirmButton: false,
                     timer:1500,
-                    ruta: 'employee/dashboard'
+                    ruta: 'employee/dashboard/tasks'
                 })
             }
         })
     }
 })
 
-app.get('/employee/dashboard', async(req, res) => {
+app.get('/employee/dashboard/tasks', async(req, res) => {
     if(req.session.loggedin){
-        res.render('dashboardEmployee',{
-            login: true,
-            name: req.session.name
-        })
-    }else{
-        res.render('dashboardEmployee', {
-            login:false,
-            name:'Acceso restringido: debe iniciar sesion'
+        connection.query('SELECT * FROM projects WHERE pro_employee_id = ?', [req.session.employee_id], async (error, results) => {
+            if(error){
+                throw error
+            } else { 
+                const now = Date.now()
+                res.render('dashboardEmployee',{
+                    now: now,
+                    results: results,
+                    login: true,
+                    name: req.session.name
+                })
+            }
         })
         
+    }else{
+        res.render('dashboardAdmin', {
+            login:false,
+            name:''
+        })
+        
+    }
+})
+
+app.get('/completeTask/:id', async(req, res) => {
+    if(req.session.loggedin){
+        const id = req.params.id
+        connection.query('SELECT * FROM projects WHERE pro_id = ?', [id], async (error, results) => {
+            if(error){
+                throw error
+            } else { 
+                console.log(results)
+                res.render('completeTask',{
+                    task: results[0],
+                    login: true,
+                })
+            }
+        })
+        
+    }else{
+        res.render('dashboardAdmin', {
+            login:false,
+            name:''
+        })
+        
+    }
+})
+
+app.post('/completeTask', async(req, res) => {
+    if(req.session.loggedin){
+        const pro_id = req.body.pro_id
+        const pro_msg = req.body.pro_msg
+        const pro_file = req.body.pro_file
+        const pro_state = req.body.pro_state
+        connection.query('UPDATE projects SET ? WHERE pro_id = ?', [{pro_file:pro_file, pro_msg:pro_msg, pro_state:pro_state}, pro_id], async(error, results) => {
+            if(error){
+                throw error
+            } else { 
+                res.redirect('/employee/dashboard/tasks')
+         }
+    })
+    }else{
+        res.render('dashboardAdmin', {
+            login:false,
+            name:''
+        }) 
     }
 })
 //Redireccionamiento en caso de tener o no sesion iniciada

@@ -39,11 +39,12 @@
             <a href="/newTask" class="btn btn-outline-primary"><i class='bx bx-plus'></i></a>
                 <table class="table table-bordered table-striped text-center mt-4">
                   <thead>
-                    <tr class= "bg-primary text-white">
+                    <tr class= "bg-success text-white">
                         <th>ID</th>
                         <th>Titulo</th>
                         <th>Empleado</th>
                         <th>Completado</th>
+                        <th>Mensaje del empleado</th>
                         <th>Fecha de Entrega</th>
                         <th>Acciones</th>
                     </tr>
@@ -54,11 +55,20 @@
                         <td><%= task.pro_id%></td>
                         <td><%= task.pro_title %></td>
                         <td><%= task.pro_employee_id %></td>
-                    <% if (task.pro_state == 0) { %>
-                        <td>Sin entregar</td>
-                    <%} else {%>
-                        <td>Entregado</td>
-                    <% } %>
+                        <% if (now <=  task.pro_limit.getTime()) { %>
+                          <% if (task.pro_state == 0) { %>
+                              <td>Sin entregar</td>
+                          <%} else {%>
+                              <td>Entregado</td>
+                          <% } %>
+                        <%} else { %>
+                          <td>Retrasada</td>
+                        <% } %>
+                        <% if (task.pro_msg == "") { %>
+                          <td>Sin Mensaje</td>
+                        <%} else {%>
+                          <td><%= task.pro_msg %></td>
+                        <% } %>
                         <td><%= task.pro_limit %></td>
                         <td>
                             <a href="/editTask/<%= task.pro_id%>" class="btn btn-outline-primary"><i class='bx bx-pencil'></i></a>
