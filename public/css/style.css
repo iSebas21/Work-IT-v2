@@ -74,6 +74,34 @@ body{
   box-shadow:0 0 0 3px #10B981;
 }
 
+/* Estilos boton BACK*/
+.btn-back{
+  width: 100%;
+  padding: 15px;
+  background-color: #d35434;
+  border: 0;
+  box-sizing: border-box;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: large;
+  color: #ffffff;
+  margin-top: 20px;
+  /* Para dar la apariencia de un boton */
+  -webkit-appearance: button;
+  -moz-appearance: button;
+  appearance: button;
+  text-decoration: none;  
+}
+.btn-back:hover,.btn-back:active{
+  color:#fff;
+  background-color: #d35434;
+  border-color:#d35434
+;
+}
+.btn-back:focus{
+  box-shadow:0 0 0 3px #d35434;
+}
+
 
 
 /* Estilos de link para ir a LOGIN*/

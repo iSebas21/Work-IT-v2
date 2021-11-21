@@ -1,20 +1,18 @@
 const express = require('express')
 const app = express()
-
 app.use(express.urlencoded({extended: false}))
 app.use(express.json())
-
+//Declarando directorio para las variables de entorno
 const dotenv = require('dotenv')
 dotenv.config({path: './env/.env'})
-
+//Declarando las carpetas de recursos
 app.use('/resources', express.static('public'))
 app.use('/resources', express.static(__dirname + '/public'))
-
+//Declarando ejs como gestor de plantillas
 app.set('view engine', 'ejs')
-
+//Declarar el uso de bcryptjs para las contraseñas y session para las sesiones
 const bcryptjs = require('bcryptjs')
 const session = require('express-session')
-
 //Configuracion para Express Session
 app.use(session({secret:'secret', resave: true, saveUninitialized: true}))
 //Conexion a la base de datos
@@ -68,22 +66,49 @@ app.post('/admin/register', async(req,res) => {
     const admin_name = req.body.name
     const admin_mail = req.body.mail
     const pass = req.body.pass
-    let passwordHaash = await bcryptjs.hash(pass, 8)
-    connection.query('INSERT INTO admin SET ?', {admin_name:admin_name, admin_mail:admin_mail, admin_password:passwordHaash}, async(error, results) => {
-        if(error){
-            console.log(error)
-        }else{
-            res.render('registerAdmin', {
-                alert:true,
-                alertTitle:'Registro',
-                alertMessage: "Registro Exitoso",
-                alertIcon: 'success',
-                showConfirmButton: false,
-                timer:1500,
-                ruta: ' '
-            })
-        }
-    })
+    const pass2 = req.body.pass2
+    if (pass == pass2){
+        let passwordHaash = await bcryptjs.hash(pass, 8)
+        connection.query('SELECT * FROM admin WHERE admin_mail = ?', [admin_mail], async (error, pass) => {
+            if (pass.length == 0) {
+                connection.query('INSERT INTO admin SET ?', {admin_name:admin_name, admin_mail:admin_mail, admin_password:passwordHaash}, async(error, results) => {
+                    if(error){
+                        throw error
+                    }else{
+                        res.render('registerAdmin', {
+                            alert:true,
+                            alertTitle:'Registro',
+                            alertMessage: "Registro Exitoso",
+                            alertIcon: 'success',
+                            showConfirmButton: false,
+                            timer:1500,
+                            ruta: ' '
+                        })
+                    }
+                })
+            } else {
+                res.render('registerAdmin', {
+                    alert:true,
+                    alertTitle:'Error',
+                    alertMessage: "El correo ya esta en uso, elige uno distinto",
+                    alertIcon: 'warning',
+                    showConfirmButton: true,
+                    timer: false,
+                    ruta: 'admin/register'
+                })
+            }
+        })
+    } else {
+        res.render('registerAdmin', {
+            alert:true,
+            alertTitle:'Error',
+            alertMessage: "Las contraseñas no coinciden",
+            alertIcon: 'warning',
+            showConfirmButton: true,
+            timer: false,
+            ruta: 'admin/register'
+        })
+    }
 })
 //Inicio para administradores donde se ve la lista de empleados
 app.get('/admin/dashboard/employee', async(req, res) => {
@@ -101,9 +126,9 @@ app.get('/admin/dashboard/employee', async(req, res) => {
         })
         
     }else{
-        res.render('dashboardAdmin', {
+        res.render('noAccess', {
             login:false,
-            name:''
+            name:'Acceso denegado, necesita iniciar sesion'
         })
         
     }
@@ -126,9 +151,9 @@ app.get('/admin/dashboard/tasks', async(req, res) => {
         })
         
     }else{
-        res.render('dashboardAdmin', {
+        res.render('noAccess', {
             login:false,
-            name:''
+            name:'Acceso denegado, necesita iniciar sesion'
         })
         
     }
@@ -148,103 +173,99 @@ app.get('/newTask', async (req,res) => {
             }
         })   
     }else{
-        res.render('dashboardAdmin', {
+        res.render('noAccess', {
             login:false,
-            name:''
+            name:'Acceso denegado, necesita iniciar sesion'
         })
         
     }
 })
 //Formulario para asignar tarea
 app.post('/newTask', async (req, res) => {
-    if(req.session.loggedin){
-        const pro_title = req.body.pro_title
-        const pro_description = req.body.pro_description
-        const pro_file = req.body.pro_file
-        const pro_limit = req.body.pro_limit
-        const pro_employee = req.body.pro_employee
-        const pro_admin = req.session.admin_id
-        connection.query('SELECT * FROM employees WHERE employee_name = ?', [pro_employee], async (error, results1) =>{
-            if(error){
-                throw error
-            } else { 
-                connection.query('INSERT INTO projects SET ?', {pro_title:pro_title, pro_description:pro_description, pro_file:pro_file, pro_limit:pro_limit, pro_employee_id:results1[0].employee_id, pro_admin:pro_admin}, async(error, results2) => {
-                    if(error){
-                        throw error
-                    } else { 
-                        res.redirect('/admin/dashboard/tasks')
-                }
-            })
+    const pro_title = req.body.pro_title
+    const pro_description = req.body.pro_description
+    const pro_file = req.body.pro_file
+    const pro_limit = req.body.pro_limit
+    const pro_employee = req.body.pro_employee
+    const pro_admin = req.session.admin_id
+    connection.query('SELECT * FROM employees WHERE employee_name = ?', [pro_employee], async (error, results1) =>{
+        if(error){
+            throw error
+        } else { 
+            connection.query('INSERT INTO projects SET ?', {pro_title:pro_title, pro_description:pro_description, pro_file:pro_file, pro_limit:pro_limit, pro_employee_id:results1[0].employee_id, pro_admin:pro_admin}, async(error, results2) => {
+                if(error){
+                    throw error
+                } else { 
+                    res.redirect('/admin/dashboard/tasks')
             }
         })
-        
-    }else{
-        res.render('dashboardAdmin', {
-            login:false,
-            name:''
-        })
-        
-    }
-    
+        }
+    })    
 })
 //Editar tarea
 app.get('/editTask/:id', async (req, res) => {
-    const id = req.params.id
-    connection.query('SELECT * FROM projects WHERE pro_id = ?', [id], (error, results1) => {
-        if(error){
-            throw error
-        }else{
-            connection.query('SELECT * FROM employees WHERE employee_admin = ?', [req.session.admin_id], async (error, results2) => {
-                if(error){
-                    throw error
-                } else {                   
-                    res.render('editTask', {
-                        task:results1[0],
-                        user:results2,
-                        login: true,
-                    
-                    })
-                }
-            })   
-        }
-    })
+    if(req.session.loggedin){
+        const id = req.params.id
+        connection.query('SELECT * FROM projects WHERE pro_id = ?', [id], (error, results1) => {
+            if(error){
+                throw error
+            }else{
+                connection.query('SELECT * FROM employees WHERE employee_admin = ?', [req.session.admin_id], async (error, results2) => {
+                    if(error){
+                        throw error
+                    } else {                   
+                        res.render('editTask', {
+                            task:results1[0],
+                            user:results2,
+                            login: true,
+                        
+                        })
+                    }
+                })   
+            }
+        })
+    }else{
+        res.render('noAccess', {
+            login:false,
+            name:'Acceso denegado, necesita iniciar sesion'
+        })
+    
+}
 })
 //Formulario para editar tarea
 app.post('/editTask', async (req, res) => {
-    if(req.session.loggedin){
-        const pro_id = req.body.pro_id
-        const pro_title = req.body.pro_title
-        const pro_description = req.body.pro_description
-        const pro_file = req.body.pro_file
-        const pro_limit = req.body.pro_limit
-        const pro_employee = req.body.pro_employee
-        const pro_admin = req.session.admin_id
-        connection.query('UPDATE projects SET ? WHERE pro_id = ?', [{pro_title:pro_title, pro_description:pro_description, pro_file:pro_file, pro_limit:pro_limit, pro_employee_id:pro_employee, pro_admin:pro_admin}, pro_id], async(error, results2) => {
-            if(error){
-                throw error
-            } else { 
-                res.redirect('/admin/dashboard/tasks')
-         }
-    })
-        
-        
-        
-    }else{
-        res.render('dashboardAdmin', {
-            login:false,
-            name:''
-        }) 
-    }
+    const pro_id = req.body.pro_id
+    const pro_title = req.body.pro_title
+    const pro_description = req.body.pro_description
+    const pro_file = req.body.pro_file
+    const pro_limit = req.body.pro_limit
+    const pro_employee = req.body.pro_employee
+    const pro_admin = req.session.admin_id
+    connection.query('UPDATE projects SET ? WHERE pro_id = ?', [{pro_title:pro_title, pro_description:pro_description, pro_file:pro_file, pro_limit:pro_limit, pro_employee_id:pro_employee, pro_admin:pro_admin}, pro_id], async(error, results2) => {
+        if(error){
+            throw error
+        } else { 
+            res.redirect('/admin/dashboard/tasks')
+        }
+    })      
 })
 //Eliminar tarea
 app.get('/deleteTask/:id', async (req, res) => {
-    const pro_id = req.params.id
-    connection.query('DELETE FROM projects WHERE pro_id = ?', [pro_id], async (error, results) => {
-        if(error){
-            throw error
-        }else{        
-            res.redirect('/admin/dashboard/tasks')
-        }})
+    if(req.session.loggedin){
+        const pro_id = req.params.id
+        connection.query('DELETE FROM projects WHERE pro_id = ?', [pro_id], async (error, results) => {
+            if(error){
+                throw error
+            }else{        
+                res.redirect('/admin/dashboard/tasks')
+            }})
+    }else{
+        res.render('noAccess', {
+            login:false,
+            name:'Acceso denegado, necesita iniciar sesion'
+        })
+        
+    }
 })
 //Inicio de sesion empleado
 app.get('/employee/login', (req,res) => {
@@ -260,34 +281,60 @@ app.post('/employee/register', async(req,res) => {
     const employee_name = req.body.name
     const employee_mail = req.body.mail
     const pass = req.body.pass
+    const pass2 = req.body.pass2
     const employee_admin = req.body.admin_mail
-    let passwordHaash = await bcryptjs.hash(pass, 8)
-    connection.query('SELECT * FROM admin WHERE admin_mail = ?', [employee_admin], async (error, results) => {
-    if( results.length == 0){
+    if (pass == pass2) {
+        let passwordHaash = await bcryptjs.hash(pass, 8)
+        connection.query('SELECT * FROM admin WHERE admin_mail = ?', [employee_admin], async (error, results) => {
+            if( results.length == 0){
+                res.render('registerEmployee', {
+                    alert:true,
+                    alertTitle:'Error',
+                    alertMessage: "No existe ningun administrador con ese correo",
+                    alertIcon: 'warning',
+                    showConfirmButton: true,
+                    timer: false,
+                    ruta: 'employee/register'
+                })
+            }else{
+                connection.query('SELECT * FROM employees WHERE employee_mail = ?', [employee_mail], async (error, dif) => {
+                    if (dif.length == 0) {
+                        connection.query('INSERT INTO employees SET ?', {employee_name:employee_name, employee_mail:employee_mail, employee_password:passwordHaash, employee_admin:results[0].admin_id}, async (error, results) =>{    
+                            res.render('registerEmployee', {
+                                alert:true,
+                                alertTitle:'Registrado!',
+                                alertMessage: "Se ha registrado exitosamente",
+                                alertIcon: 'success',
+                                showConfirmButton: true,
+                                timer: 1500,
+                                ruta: ''
+                            })
+                        })
+                    } else {
+                        res.render('registerEmployee', {
+                            alert:true,
+                            alertTitle:'Error',
+                            alertMessage: 'El correo ya esta en uso, elige uno diferente',
+                            alertIcon: 'warning',
+                            showConfirmButton: true,
+                            timer: false,
+                            ruta: 'employee/register'
+                        })
+                    }
+                })
+            }
+        })
+    } else {
         res.render('registerEmployee', {
             alert:true,
             alertTitle:'Error',
-            alertMessage: "No existe ningun administrador con ese correo",
+            alertMessage: 'Las contraseñas no coinciden',
             alertIcon: 'warning',
             showConfirmButton: true,
             timer: false,
             ruta: 'employee/register'
-            })
-    }else{
-        connection.query('INSERT INTO employees SET ?', {employee_name:employee_name, employee_mail:employee_mail, employee_password:passwordHaash, employee_admin:results[0].admin_id}, async (error, results) =>{    
-            res.render('registerEmployee', {
-                alert:true,
-                alertTitle:'Registrado!',
-                alertMessage: "Se ha registrado exitosamente",
-                alertIcon: 'success',
-                showConfirmButton: true,
-                timer: 1500,
-                ruta: ''
-                })
-            })
-        
+        })
     }
-})
 })
 //Validacion de los datos del usuario
 app.post('/employee/auth', async (req,res)=>{
@@ -342,9 +389,9 @@ app.get('/employee/dashboard/tasks', async(req, res) => {
         })
         
     }else{
-        res.render('dashboardAdmin', {
+        res.render('noAccess', {
             login:false,
-            name:''
+            name:'Acceso denegado, necesita iniciar sesion'
         })
         
     }
@@ -357,7 +404,6 @@ app.get('/completeTask/:id', async(req, res) => {
             if(error){
                 throw error
             } else { 
-                console.log(results)
                 res.render('completeTask',{
                     task: results[0],
                     login: true,
@@ -366,99 +412,101 @@ app.get('/completeTask/:id', async(req, res) => {
         })
         
     }else{
-        res.render('dashboardAdmin', {
+        res.render('noAccess', {
             login:false,
-            name:''
+            name:'Acceso denegado, necesita iniciar sesion'
         })
         
     }
 })
 //Le permite al empleado marcar como completada la tarea, ademas de subir un archivo y un mensaje para el admin
 app.post('/completeTask', async(req, res) => {
-    if(req.session.loggedin){
-        const pro_id = req.body.pro_id
-        const pro_msg = req.body.pro_msg
-        const pro_file = req.body.pro_file
-        const pro_state = req.body.pro_state
-        connection.query('UPDATE projects SET ? WHERE pro_id = ?', [{pro_file:pro_file, pro_msg:pro_msg, pro_state:pro_state}, pro_id], async(error, results) => {
-            if(error){
-                throw error
-            } else { 
-                res.redirect('/employee/dashboard/tasks')
-         }
+    const pro_id = req.body.pro_id
+    const pro_msg = req.body.pro_msg
+    const pro_file = req.body.pro_file
+    const pro_state = req.body.pro_state
+    connection.query('UPDATE projects SET ? WHERE pro_id = ?', [{pro_file:pro_file, pro_msg:pro_msg, pro_state:pro_state}, pro_id], async(error, results) => {
+        if(error){
+            throw error
+        } else { 
+            res.redirect('/employee/dashboard/tasks')
+        }
     })
+})
+//Le permite al administrador revisar los mensajes enviados y recibidos
+app.get('/admin/msg', async (req, res) => {
+    if(req.session.loggedin){
+        const id = req.session.admin_id
+        connection.query('SELECT * FROM admin WHERE admin_id = ?', [id], async (error, results) => {
+            if(error) {
+                throw error
+            } else {
+                const mail = results[0].admin_mail
+                connection.query('SELECT * FROM msg WHERE msg_origin = ?', [mail], async (error, sent) => {
+                    if (error) {
+                        throw error
+                    }else{
+                        connection.query('SELECT * FROM msg WHERE msg_destination = ?', [mail], async (error, received) => {
+                            if(error) {
+                                throw error
+                            }else{
+                                res.render('adminMSG', {
+                                    sent: sent,
+                                    received: received,
+                                    login: true
+                                })
+                            }
+                        })
+                    }
+                })
+            }
+        })
     }else{
-        res.render('dashboardAdmin', {
+        res.render('noAccess', {
             login:false,
-            name:''
+            name:'Acceso denegado, necesita iniciar sesion'
+        })
+    
+}
+
+})
+//Le permite al empleado revisar los mensajes enviados y recibidos
+app.get('/employee/msg', async (req, res) => {
+    if(req.session.loggedin){
+        const id = req.session.employee_id
+        connection.query('SELECT * FROM employees WHERE employee_id = ?', [id], async (error, results) => {
+            if(error) {
+                throw error
+            } else {
+                const mail = results[0].employee_mail
+                connection.query('SELECT * FROM msg WHERE msg_origin = ?', [mail], async (error, sent) => {
+                    if (error) {
+                        throw error
+                    }else{
+                        connection.query('SELECT * FROM msg WHERE msg_destination = ?', [mail], async (error, received) => {
+                            if(error) {
+                                throw error
+                            }else{
+                                res.render('employeeMSG', {
+                                    sent: sent,
+                                    received: received,
+                                    login: true
+                                })
+                            }
+                        })
+                    }
+                })
+            }
+        })
+    }else{
+        res.render('noAccess', {
+            login:false,
+            name:'Acceso denegado, necesita iniciar sesion'
         }) 
     }
-})
-
-app.get('/admin/msg', async (req, res) => {
-    const id = req.session.admin_id
-    connection.query('SELECT * FROM admin WHERE admin_id = ?', [id], async (error, results) => {
-        console.log(results)
-        if(error) {
-            throw error
-        } else {
-            const mail = results[0].admin_mail
-            connection.query('SELECT * FROM msg WHERE msg_origin = ?', [mail], async (error, sent) => {
-                console.log(sent)
-                if (error) {
-                    throw error
-                }else{
-                    connection.query('SELECT * FROM msg WHERE msg_destination = ?', [mail], async (error, received) => {
-                        console.log(received)
-                        if(error) {
-                            throw error
-                        }else{
-                            res.render('adminMSG', {
-                                sent: sent,
-                                received: received,
-                                login: true
-                            })
-                        }
-                    })
-                }
-            })
-        }
-    })
 
 })
-
-app.get('/employee/msg', async (req, res) => {
-    const id = req.session.employee_id
-    connection.query('SELECT * FROM employees WHERE employee_id = ?', [id], async (error, results) => {
-        console.log(results)
-        if(error) {
-            throw error
-        } else {
-            const mail = results[0].employee_mail
-            connection.query('SELECT * FROM msg WHERE msg_origin = ?', [mail], async (error, sent) => {
-                console.log(sent)
-                if (error) {
-                    throw error
-                }else{
-                    connection.query('SELECT * FROM msg WHERE msg_destination = ?', [mail], async (error, received) => {
-                        console.log(received)
-                        if(error) {
-                            throw error
-                        }else{
-                            res.render('employeeMSG', {
-                                sent: sent,
-                                received: received,
-                                login: true
-                            })
-                        }
-                    })
-                }
-            })
-        }
-    })
-
-})
-
+//Formulario para crear un nuevo mensaje
 app.get('/admin/newMSG', async (req, res) => {
     if(req.session.loggedin){
         connection.query('SELECT * FROM employees', async (error, emp) => {
@@ -480,30 +528,30 @@ app.get('/admin/newMSG', async (req, res) => {
             }
         })   
     }else{
-        res.render('dashboardAdmin', {
+        res.render('noAccess', {
             login:false,
-            name:''
+            name:'Acceso denegado, necesita iniciar sesion'
         })
         
     }
 })
-
+//Formulario para crear un nuevo mensaje
 app.post('/admin/newMSG', async (req, res) => {
-    const msg_text = req.body.msg_text
-    const msg_destination = req.body.msg_destination
-    const origin_id = req.session.admin_id
-    connection.query('SELECT * FROM admin WHERE admin_id = ?', [origin_id], async (error, origin) => {
-        const msg_origin = origin[0].admin_mail
-        connection.query('INSERT INTO msg SET ?', {msg_origin:msg_origin, msg_destination:msg_destination, msg_text:msg_text}, async(error, resutls) => {
-            if (error) {
-                throw error
-            }else{
-                res.redirect('/admin/msg')
-            }
+        const msg_text = req.body.msg_text
+        const msg_destination = req.body.msg_destination
+        const origin_id = req.session.admin_id
+        connection.query('SELECT * FROM admin WHERE admin_id = ?', [origin_id], async (error, origin) => {
+            const msg_origin = origin[0].admin_mail
+            connection.query('INSERT INTO msg SET ?', {msg_origin:msg_origin, msg_destination:msg_destination, msg_text:msg_text}, async(error, resutls) => {
+                if (error) {
+                    throw error
+                }else{
+                    res.redirect('/admin/msg')
+                }
+            })
         })
-    })
 })
-
+//Formulario para crear un nuevo mensaje
 app.get('/employee/newMSG', async (req, res) => {
     if(req.session.loggedin){
         connection.query('SELECT * FROM employees', async (error, emp) => {
@@ -525,14 +573,14 @@ app.get('/employee/newMSG', async (req, res) => {
             }
         })   
     }else{
-        res.render('dashboardAdmin', {
+        res.render('noAccess', {
             login:false,
-            name:''
+            name:'Acceso denegado, necesita iniciar sesion'
         })
         
     }
 })
-
+//Formulario para crear un nuevo mensaje
 app.post('/employee/newMSG', async (req, res) => {
     const msg_text = req.body.msg_text
     const msg_destination = req.body.msg_destination
