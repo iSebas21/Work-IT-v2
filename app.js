@@ -458,6 +458,96 @@ app.get('/employee/msg', async (req, res) => {
     })
 
 })
+
+app.get('/admin/newMSG', async (req, res) => {
+    if(req.session.loggedin){
+        connection.query('SELECT * FROM employees', async (error, emp) => {
+            if(error){
+                throw error
+            } else { 
+                connection.query('SELECT * FROM admin', async (error, adm) => {       
+                    if(error){
+                        throw error
+                    } else { 
+                        res.render('adminNewMSG',{
+                            employee: emp,
+                            admin: adm,
+                            login: true,
+                            name: req.session.name
+                        })
+                    }
+                })
+            }
+        })   
+    }else{
+        res.render('dashboardAdmin', {
+            login:false,
+            name:''
+        })
+        
+    }
+})
+
+app.post('/admin/newMSG', async (req, res) => {
+    const msg_text = req.body.msg_text
+    const msg_destination = req.body.msg_destination
+    const origin_id = req.session.admin_id
+    connection.query('SELECT * FROM admin WHERE admin_id = ?', [origin_id], async (error, origin) => {
+        const msg_origin = origin[0].admin_mail
+        connection.query('INSERT INTO msg SET ?', {msg_origin:msg_origin, msg_destination:msg_destination, msg_text:msg_text}, async(error, resutls) => {
+            if (error) {
+                throw error
+            }else{
+                res.redirect('/admin/msg')
+            }
+        })
+    })
+})
+
+app.get('/employee/newMSG', async (req, res) => {
+    if(req.session.loggedin){
+        connection.query('SELECT * FROM employees', async (error, emp) => {
+            if(error){
+                throw error
+            } else { 
+                connection.query('SELECT * FROM admin', async (error, adm) => {       
+                    if(error){
+                        throw error
+                    } else { 
+                        res.render('employeeNewMSG',{
+                            employee: emp,
+                            admin: adm,
+                            login: true,
+                            name: req.session.name
+                        })
+                    }
+                })
+            }
+        })   
+    }else{
+        res.render('dashboardAdmin', {
+            login:false,
+            name:''
+        })
+        
+    }
+})
+
+app.post('/employee/newMSG', async (req, res) => {
+    const msg_text = req.body.msg_text
+    const msg_destination = req.body.msg_destination
+    const origin_id = req.session.employee_id
+    connection.query('SELECT * FROM employees WHERE employee_id = ?', [origin_id], async (error, origin) => {
+        const msg_origin = origin[0].employee_mail
+        connection.query('INSERT INTO msg SET ?', {msg_origin:msg_origin, msg_destination:msg_destination, msg_text:msg_text}, async(error, resutls) => {
+            if (error) {
+                throw error
+            }else{
+                res.redirect('/employee/msg')
+            }
+        })
+    })
+})
 //Redireccionamiento en caso de tener o no sesion iniciada
 app.get('/', (req, res) => {
     if(req.session.loggedin){
