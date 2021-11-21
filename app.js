@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+const fs = require('fs')
 app.use(express.urlencoded({extended: false}))
 app.use(express.json())
 //Declarando directorio para las variables de entorno
@@ -188,6 +189,7 @@ app.post('/newTask', async (req, res) => {
     const pro_limit = req.body.pro_limit
     const pro_employee = req.body.pro_employee
     const pro_admin = req.session.admin_id
+    
     connection.query('SELECT * FROM employees WHERE employee_name = ?', [pro_employee], async (error, results1) =>{
         if(error){
             throw error

@@ -25,8 +25,6 @@
               </li>
             </ul>
             <form class="d-flex">
-              <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-              <button class="btn btn-outline-success" type="submit"><i class='bx bx-search'></i></button>
               <a class="btn btn-outline-danger" href="/employee/logout"><i class='bx bx-door-open' ></i></a>
             </form>
           </div>
@@ -41,7 +39,7 @@
                     <tr class= "bg-secondary text-white">
                         <th>Destino</th>
                         <th>Mensaje</th>
-                        <th>Acciones</th>
+      
                     </tr>
                   </thead>
                   <tbody>
@@ -49,9 +47,7 @@
                     <tr>
                         <td><%= sent.msg_destination %></td>
                         <td><%= sent.msg_text %></td>
-                        <td>
-                            <a href="" class="btn btn-outline-danger"><i class='bx bx-trash' ></i></a>
-                        </td>
+                        
                     </tr>
                     <% }) %>
                   </tbody>
@@ -63,7 +59,7 @@
                   <tr class= "bg-secondary text-white">
                       <th>Remitente</th>
                       <th>Mensaje</th>                     
-                      <th>Acciones</th>
+    
                   </tr>
                 </thead>
                 <tbody>
@@ -71,9 +67,7 @@
                   <tr>
                       <td><%= received.msg_origin %></td>
                       <td><%= received.msg_text %></td>
-                      <td>
-                          <a href="" class="btn btn-outline-danger"><i class='bx bx-trash' ></i></a>
-                      </td>
+                      
                   </tr>
                   <% }) %>
                 </tbody>
