@@ -29,17 +29,7 @@ body{
 }
 
 /* * ---------- Caja efecto 3D ---------- */
-.containerBorder{
-  position: absolute;
-  left: 320px;
-  top: 170px;
-  width: 800px;
-  height: 250px;
-  border-top: solid var(--green); 
-  border-right: solid var(--purple);
-  border-bottom: solid var(--purple);
-  border-left:  solid var(--green);
-}
+
 
 
 .linkContainer{

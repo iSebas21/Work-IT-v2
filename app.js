@@ -243,7 +243,8 @@ app.post('/editTask', async (req, res) => {
     const pro_limit = req.body.pro_limit
     const pro_employee = req.body.pro_employee
     const pro_admin = req.session.admin_id
-    connection.query('UPDATE projects SET ? WHERE pro_id = ?', [{pro_title:pro_title, pro_description:pro_description, pro_file:pro_file, pro_limit:pro_limit, pro_employee_id:pro_employee, pro_admin:pro_admin}, pro_id], async(error, results2) => {
+    const pro_state = req.session.pro_state
+    connection.query('UPDATE projects SET ? WHERE pro_id = ?', [{pro_title:pro_title, pro_description:pro_description, pro_file:pro_file, pro_limit:pro_limit,pro_state:pro_state, pro_employee_id:pro_employee, pro_admin:pro_admin}, pro_id], async(error, results2) => {
         if(error){
             throw error
         } else { 

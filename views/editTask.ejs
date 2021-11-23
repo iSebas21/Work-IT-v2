@@ -40,6 +40,7 @@
                 <div class="card-body">
                     <form action="/editTask" method="POST">
                         <input id="id" name="pro_id" value="<%= task.pro_id %>" hidden>
+                        <input id="state" name="pro_state" value="0" hidden>
                         <div class="mb-3">
                             <label for="user" class="form-label">Titulo</label>
                             <input type="text" class="form-control" id="title" name="pro_title" value="<%= task.pro_title %>"tabindex="1" required>
