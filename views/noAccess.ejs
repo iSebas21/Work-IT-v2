@@ -4,11 +4,15 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://css.gg/arrow-left.css' rel='stylesheet'>
+    <link rel="stylesheet" href="/resources/css/style.css">
     <title>Sin acceso</title>
-    <link rel="stylesheet" href="resources/css/style.css">
 </head>
-    <body>
-        <h1> <%= name %> </h1>
-        <a href="/" class='btn-back'>Salir</a>
+    <body class="indexBody">
+        <section class="border" style="text-align: center;">
+        <h1> <%= name %>.</h1>
+        <img class="notFound" src="/resources/assets/notFound.svg" alt="notFound.svg" srcset="">
+        <a href="/" class='btn-back'><i class="gg-arrow-left"></i> Salir</a>
+        </section>
     </body>
 </html>

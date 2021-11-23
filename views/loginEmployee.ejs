@@ -4,19 +4,24 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"> 
+    <link href='https://css.gg/arrow-left.css' rel='stylesheet'>
     <title>Empleado</title>
     <link rel="stylesheet" href="/resources/css/style.css">
 </head>
-<body>
-    <div class= "login-form">
-        <h2>Iniciar Sesion Empleado</h2>
+<body class="indexBody">
+  <section class="border">
+    <div class= "register-form">
+        <h1>Iniciar Sesion Empleado</h1>
         <form action="/employee/auth" method="post">
             <input type="email" name="mail" id="mail" placeholder="Correo Electronico" required>
             <input type="password" name="pass" id="pass" placeholder="Contraseña" required>
-            <input class="btn-login" type="submit" name="btn-login" value="Login">
+            <input class="btn-login" type="submit" name="btn-login" value="Iniciar sesion">
         </form>
         <a href="register" class="btn-register"> Registrar</a>
-        <a href="/" class="btn-back"> < Salir </a>
+        <a href="/" class="btn-back"><i class="gg-arrow-left"></i> Salir </a>
     </div>
 
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -34,5 +39,6 @@
         })
         </script>
        <% } %>
+  </section>
 </body>
 </html>

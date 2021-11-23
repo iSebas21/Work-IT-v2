@@ -1,24 +1,94 @@
+@import url(../css/root.css);
+
+html{
+  font-family: 'Roboto', sans-serif;
+}
+html > *{
+  font-family: 'Roboto', sans-serif;
+}
+input{
+  font-family: inherit;
+}
 body{
-  font-family: 'Roboto';
-  background-color: #f5f5f5;
+  background-color: var(--var(--white));
   margin: auto;
-  text-align: center;
 }
 
-/* Login form */
-.login-form, .contenedor {
-  width: 300px;
+/* Contenedor de los botones para elegir empleado o administrador */
+.indexBody{
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f1e9e9;
+}
+.indexBody > *{
+  color: var(--black);
+}
+
+/* * ---------- Caja efecto 3D ---------- */
+.containerBorder{
+  position: absolute;
+  left: 320px;
+  top: 170px;
+  width: 800px;
+  height: 250px;
+  border-top: solid var(--green); 
+  border-right: solid var(--purple);
+  border-bottom: solid var(--purple);
+  border-left:  solid var(--green);
+}
+
+
+.linkContainer{
+  width: 60%;
   margin: 0 auto;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
 }
-.login-form h1 {
-  text-align: center;
-  color:midnightblue ;
-  font-size: 28px;
-  padding: 70px 0 10px 0;
+/* * ---------- Contenedor index ---------- */
+.containerJobs{
+  width: 800px;
+  background-color: var(--whiteAlpha);
+  border:thin solid var(--black);
+  z-index: 1000;
+  border-radius: 10px;
+  padding-bottom: 40px;
 }
-.login-form input[type="password"],
-.login-form input[type="email"] {
-  width: 100%;
+.containerJobs > h1{
+  font-size: 48px;
+}
+.containerJobs > h2{
+  font-size: 32px;
+}
+.containerJobs > a{
+  width: 120px;
+  margin: 39px 8px;
+}
+
+/* * ---------- Login form ---------- */
+.login-form, .contenedor {
+  width: 500px;
+  margin: 0 auto;
+  /* border: thin solid var(--black); */
+}
+
+.indexBody h1{
+  font-size: 40px;
+}
+.indexBody h2{
+  font-size: 32px;
+}
+.login-form h3{
+  font-size: 24px;
+}
+.register-form input[type="password"],
+.register-form input[type="email"] {
+  width: 80%;
   padding: 15px;
   border: 1px solid #ced4da;
   margin-bottom: 10px;
@@ -35,10 +105,10 @@ body{
   cursor: pointer;
   font-weight: bold;
   font-size: large;
-  color: #ffffff;
+  color: var(--white);
 }
 .btn-login:hover,.btn-login:active{
-  color:#fff;
+  color:var(--white);
   background-color:#61428f;
   border-color:#61428f
 }
@@ -48,6 +118,7 @@ body{
 
 /* Estilos boton REGISTER*/
 .btn-register{
+  display: block;
   width: 100%;
   padding: 15px;
   background-color: #34D399;
@@ -56,59 +127,38 @@ body{
   cursor: pointer;
   font-weight: bold;
   font-size: large;
-  color: #ffffff;
-  margin-top: 20px;
+  color: var(--white);
+  margin: auto 0;
+  margin-top: 10px;
+  margin-bottom: 10px;
   /* Para dar la apariencia de un boton */
   -webkit-appearance: button;
   -moz-appearance: button;
   appearance: button;
   text-decoration: none;  
+  text-align: center;
 }
 .btn-register:hover,.btn-register:active{
-  color:#fff;
-  background-color: #10B981;
-  border-color:#10B981
+  color:var(--white);
+  background-color: var(--green);
+  border-color:var(--green)
 ;
 }
 .btn-register:focus{
-  box-shadow:0 0 0 3px #10B981;
-}
-
-/* Estilos boton BACK*/
-.btn-back{
-  width: 100%;
-  padding: 15px;
-  background-color: #d35434;
-  border: 0;
-  box-sizing: border-box;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: large;
-  color: #ffffff;
-  margin-top: 20px;
-  /* Para dar la apariencia de un boton */
-  -webkit-appearance: button;
-  -moz-appearance: button;
-  appearance: button;
-  text-decoration: none;  
-}
-.btn-back:hover,.btn-back:active{
-  color:#fff;
-  background-color: #d35434;
-  border-color:#d35434
-;
-}
-.btn-back:focus{
-  box-shadow:0 0 0 3px #d35434;
+  box-shadow:0 0 0 3px var(--green);
 }
 
 
 
 /* Estilos de link para ir a LOGIN*/
+.a-login-admin, .a-login-employee{
+  transition: all .3s ease;
+  border-radius: 5px;
+}
 .a-login-admin:link, .a-login-admin:visited {
-  background-color: white;
-  color: black;
-  border: 2px solid #10B981;
+  background-color: var(--whiteAlpha);
+  color: var(--black);
+  border: 2px solid var(--green);
   padding: 10px 20px;
   text-align: center;
   text-decoration: none;
@@ -116,14 +166,15 @@ body{
 }
 
 .a-login-admin:hover, .a-login-admin:active {
-  background-color: #10B981;
-  color: white;
+  transform: scale(1.3);
+  background-color: var(--green);
+  color: var(--white);
 }
 
 .a-login-employee:link, .a-login-employee:visited {
-  background-color: white;
-  color: black;
-  border: 2px solid #b400d4;
+  background-color: var(--whiteAlpha);
+  color: var(--black);
+  border: 2px solid var(--purple);
   padding: 10px 20px;
   text-align: center;
   text-decoration: none;
@@ -131,14 +182,15 @@ body{
 }
 
 .a-login-employee:hover, .a-login-employee:active {
-  background-color: #b400d4;
-  color: white;
+  transform: scale(1.3);
+  background-color: var(--purple);
+  color: var(--white);
 }
 
 /* Estilos de link para realizar el LOGOUT*/
 .a-logout:link, .a-logout:visited {
-  background-color: white;
-  color: black;
+  background-color: var(--white);
+  color: var(--black);
   border: 2px solid #F87171;
   padding: 10px 20px;
   text-align: center;
@@ -148,49 +200,50 @@ body{
 
 .a-logout:hover, .a-logout:active {
   background-color: #F87171;
-  color: white;
+  color: var(--white);
 }
 
 /* Estilos boton CANCELAR*/
 .btn-cancel{
-  width: 50%;
+  display: block;
+  width: 100%;
   padding: 15px;
-  background-color: #9CA3AF;
+  background-color: var(--purple);
   border: 0;
   box-sizing: border-box;
   cursor: pointer;
   font-weight: bold;
   font-size:medium;
-  color: #ffffff;
+  color: var(--white);
   text-align: center;
   margin-top: 20px;
-  /* Para dar la apariencia de un boton */
+/* Para dar la apariencia de un boton */
   -webkit-appearance: button;
   -moz-appearance: button;
   appearance: button;
   text-decoration: none;  
 }
 .btn-cancel:hover,.btn-cancel:active{
-  color:#fff;
-  background-color: #6B7280;
-  border-color:#6B7280
+  color:var(--white);
+  background-color: var(--purple);
+  border-color:var(--purple);
 ;
 }
 .btn-cancel:focus{
-  box-shadow:0 0 0 3px #6B7280;
+  box-shadow:0 0 0 3px var(--purple);
 }
 
 /* Estilos boton GUARDAR*/
 .btn-save{
-  width: 50%;
+  width: 100%;
   padding: 15px;
-  background-color: #1D4ED8;
+  background-color: var(--green);
   border: 0;
   box-sizing: border-box;
   cursor: pointer;
   font-weight: bold;
   font-size:medium;
-  color: #ffffff;
+  color: var(--white);
   margin-top: 20px;
   /* Para dar la apariencia de un boton */
   -webkit-appearance: button;
@@ -199,37 +252,142 @@ body{
   text-decoration: none;  
 }
 .btn-save:hover,.btn-save:active{
-  color:#fff;
-  background-color: #1E3A8A;
-  border-color:#1E3A8A;
+  color:var(--white);
+  background-color: var(--green);
+  border-color:var(--green);
 }
 .btn-save:focus{
-  box-shadow:0 0 0 3px #1E3A8A;
+  box-shadow:0 0 0 3px var(--green);
 }
 
 /* form User Registration */
 .register-form{
-  width: 400px;
+  width: 500px;
   margin: 0 auto;
-  padding: 0px 20px 60px 20px;
-  margin-top: 35px;
-  font-family: roboto;  
+  padding: 0px 20px 0px 20px;
+  margin-top: 20px; 
   text-align: left !important;
- box-shadow: 0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22); 
-}
-
-.register-form h1 {
-  text-align: left;
-  color:midnightblue ;
-  font-size: 22px;
-  padding: 70px 0 10px 0;
 }
 .register-form input[type="password"],
 .register-form input[type="text"],
 .register-form input[type="email"] {
+  display: block;
   width: 100%;
   padding: 15px;
   border: 1px solid #ced4da;
   margin-bottom: 10px;
   box-sizing:border-box;
+}
+.border{
+  border-top: thin inset var(--green);
+  border-bottom: thin inset var(--purple);
+  padding-bottom: 16px;
+}
+
+.btn-back{
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+  height: 32px;
+  margin: 20px auto;
+  text-align: center;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+.btn-back:hover{
+  color: var(--red);
+  font-size: 18px;
+}
+.btn-back > i{
+  margin-right: 5px;
+}
+
+.notFound{
+  width: 100px;
+  height: 100px;
+}
+
+/* * ---------- Estilos tablas ---------- */
+
+.content-table{
+  border-collapse: collapse;
+  margin: 25px auto;
+  /* min-width: 400px; */
+  width: auto;
+}
+.content-table thead tr{
+  background-color: var(--green);
+  color: var(--black);
+  text-align: left;
+  font-weight: bold;
+}
+
+.content-table th,.content-table td{
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.content-table tbody tr{
+  border-bottom: thin solid var(--white);
+}
+
+.content-table tbody tr:nth-of-type(even){
+  background-color: var(--green);
+}
+.content-table tbody tr:last-of-type{
+  border-bottom: thin solid var(--green);
+}
+
+.green{
+  background-color: var(--green) !important;
+}
+.margin-bottom{
+  margin-bottom: 16px;
+}
+.btnAddTask{
+  all: unset;
+  padding:5px;
+  margin-left: 50px;
+  border: thin solid var(--green);
+  cursor: pointer;
+  border-radius: 5px;
+  transform: all .5s ease;
+}
+.btnAddTask:hover{
+  background-color: var(--green);
+  color: var(--white);
+}
+
+.all{
+  width: 100%;
+}
+.all >thead >tr > th{
+  width: 50% !important;
+}
+.btnAddMSG{
+  border: thin solid var(--green);
+  transition: all .2s ease;
+}
+.btnAddMSG:hover{
+  background-color: var(--green);
+  color: var(--white);
+}
+.btnCancel2{
+  border:thin solid var(--red);
+  transition: all .2s ease;
+}
+.btnCancel2:hover{
+  background-color: var(--red);
+  color: var(--white);
+}.title{
+  text-align: center;
+}
+.carousel{
+  background-position: bottom center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-origin: border-box;
+  transition: all .5s ease-in-out;
 }

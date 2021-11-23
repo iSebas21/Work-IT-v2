@@ -7,8 +7,8 @@ app.use(express.json())
 const dotenv = require('dotenv')
 dotenv.config({path: './env/.env'})
 //Declarando las carpetas de recursos
-app.use('/resources', express.static('public'))
-app.use('/resources', express.static(__dirname + '/public'))
+app.use('/resources', express.static(__dirname + '/public'));
+app.use('/resources', express.static('public'));
 //Declarando ejs como gestor de plantillas
 app.set('view engine', 'ejs')
 //Declarar el uso de bcryptjs para las contraseñas y session para las sesiones
